@@ -8,7 +8,7 @@ class GeminiService {
   GeminiService()
       : _model = GenerativeModel(
           model: 'gemini-1.5-flash',
-          apiKey: 'Coloque sua Chave de API aqui',
+          apiKey: 'AIzaSyAZK-JYMWQS1gyrhpD2n3FYHBIQyu-cxIQ',
           generationConfig: GenerationConfig(maxOutputTokens: 1000),
         ) {
     // Inicialize a conversa com a primeira interação
@@ -29,6 +29,7 @@ class GeminiService {
 
     // Envia a mensagem ao modelo e obtém a resposta
     final chat = _model.startChat(history: _chatHistory);
+    // Enviando a mensagem do usuário ao modelo
     final response = await chat.sendMessage(Content.text(userInput));
 
     // Tratando a resposta para extrair o texto gerado

@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage> {
   // No widget de exibição de resposta:
   Widget _buildResponseSection() {
     return Expanded(
-      flex: 3,
+      flex: 6,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SizedBox(
@@ -144,30 +144,34 @@ class _HomePageState extends State<HomePage> {
     return Expanded(
       flex: 1,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                minLines: 1,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.purple, width: 2.0),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  labelText: 'Digite aqui sua pergunta!',
+                  labelStyle: TextStyle(color: Colors.grey[700]),
+                  suffixIcon: IconButton(
+                    onPressed: _sendMessage,
+                    icon: Icon(Icons.send, color: Colors.purple),
+                  ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.purple, width: 2.0),
-                  borderRadius: BorderRadius.circular(15),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[800],
                 ),
-                labelText: 'Digite aqui sua pergunta!',
-                labelStyle: TextStyle(color: Colors.grey[700]),
-                suffixIcon: IconButton(
-                  onPressed: _sendMessage,
-                  icon: Icon(Icons.send, color: Colors.purple),
-                ),
-              ),
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[800],
               ),
             ),
           ],

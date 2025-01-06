@@ -17,6 +17,7 @@ dependencies:
   provider: ^6.0.0
   google_generative_ai: ^0.4.6
   markdown_widget: ^2.3.2+6
+  slide_to_act: ^2.0.2
 
 dev_dependencies:
   flutter_test:
