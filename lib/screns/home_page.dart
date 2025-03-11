@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_highlight/themes/a11y-light.dart';
+import 'package:flutter_highlight/themes/atom-one-dark.dart';
 import 'package:helper_coder/server/gemini_service.dart';
 import 'package:markdown_widget/markdown_widget.dart';
+import 'package:flutter/services.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -48,7 +49,7 @@ class _HomePageState extends State<HomePage> {
         title: Column(
           children: [
             Text(
-              'HELPER CODER',
+              'iCode',
               style: TextStyle(
                 color: const Color.fromARGB(255, 255, 255, 255),
                 fontSize: 30,
@@ -81,13 +82,13 @@ class _HomePageState extends State<HomePage> {
               bottom: Radius.circular(15),
             ),
             gradient: LinearGradient(
-              colors: [Colors.blue, Colors.purple],
+              colors: [const Color.fromARGB(255, 0, 81, 255), const Color.fromARGB(255, 4, 0, 104)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(1),
+                color: const Color.fromARGB(255, 53, 53, 53).withOpacity(1),
                 blurRadius: 3,
                 spreadRadius: 1,
                 offset: Offset(0, 1),
@@ -119,16 +120,21 @@ class _HomePageState extends State<HomePage> {
               : MarkdownWidget(
                   data: _response.isNotEmpty
                       ? _response
-                      : 'Olá, o que posso te ajudar hoje?',
+                      : 'Olá, o que posso te ajudar hoje ?',
                   config: MarkdownConfig(
                     configs: [
                       PreConfig(
-                        theme: a11yLightTheme,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        theme: atomOneDarkTheme,
                         styleNotMatched: TextStyle(
                           fontSize: 16,
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w500,
-                          color: const Color.fromARGB(255, 159, 28, 246),
+                          fontStyle: FontStyle.normal,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w600,
+                          color: const Color.fromARGB(255, 120, 140, 232),
                         ),
                       )
                     ],
@@ -158,14 +164,14 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.purple, width: 2.0),
+                    borderSide: BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   labelText: 'Digite aqui sua pergunta!',
                   labelStyle: TextStyle(color: Colors.grey[700]),
                   suffixIcon: IconButton(
                     onPressed: _sendMessage,
-                    icon: Icon(Icons.send, color: Colors.purple),
+                    icon: Icon(Icons.send, color: const Color.fromARGB(255, 0, 0, 0)),
                   ),
                 ),
                 style: TextStyle(

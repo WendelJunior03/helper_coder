@@ -4,6 +4,7 @@ import 'package:helper_coder/screns/home_page.dart';
 import 'package:helper_coder/screns/my_home_page.dart';
 import 'package:helper_coder/screns/tela_informacoes.dart';
 import 'package:provider/provider.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(), // Instância de MyAppState
       child: MaterialApp(
-        title: 'Helper Coder',
+        title: 'iCode',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
@@ -41,7 +42,7 @@ class MyAppState extends ChangeNotifier {
   // Variável para armazenar a palavra atual
   var current = WordPair.random();
 
-  // Método para atualizar a palavra
+  //Método para atualizar a palavra
   void getNext() {
     current = WordPair.random();
     notifyListeners(); // Notifica os widgets que dependem deste estado

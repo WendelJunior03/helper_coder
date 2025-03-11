@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:helper_coder/screns/components/btnRirect.dart';
-import 'package:helper_coder/screns/components/emailPassword.dart';
 
 class Telainformacoe extends StatefulWidget {
   const Telainformacoe({super.key});
@@ -44,12 +43,8 @@ class _TelainformacoeState extends State<Telainformacoe>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: EmailPasswordWidget(),
-          ),
           const SizedBox(height: 20),
-          Btnrirect(),
+          Btnrirect(text: '',),
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.all(8.0),

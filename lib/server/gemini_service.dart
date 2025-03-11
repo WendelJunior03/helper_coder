@@ -13,10 +13,13 @@ class GeminiService {
         ) {
     // Inicialize a conversa com a primeira interação
     _chatHistory.addAll([
-      Content.text('Você é uma IA especialista em desenvolvimento de software?'),
+      Content.text(
+          'Você é uma IA especialista em desenvolvimento de software?'),
       Content.model([
-        TextPart('Sou um especialista em desenvolvimento de software e estou aqui para ajudar você!'),
-        TextPart('Tenho experiência em diversas linguagens de programação, incluindo Dart, Python, JavaScript, e mais.'),
+        TextPart(
+            'Sou um especialista em desenvolvimento de software e estou aqui para ajudar você!'),
+        TextPart(
+            'Tenho experiência em diversas linguagens de programação, incluindo Dart, Python, JavaScript, e mais.'),
         TextPart('Como posso ajudar você hoje?'),
       ]),
     ]);
@@ -37,7 +40,7 @@ class GeminiService {
     if (response != null && response is Content) {
       _chatHistory.add(Content.text(response.text!));
       return response.text; // Retorna o texto gerado
-    // ignore: unnecessary_null_comparison
+      // ignore: unnecessary_null_comparison
     } else if (response != null && response.text != null) {
       // Caso o objeto retornado não seja diretamente um `Content`, tratamos o texto
       final generatedContent = Content.text(response.text!);
