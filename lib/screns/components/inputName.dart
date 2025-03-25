@@ -1,6 +1,5 @@
 // input para usuario digitar o nome
 import 'package:flutter/material.dart';
-import 'package:helper_coder/screns/components/btnRirect.dart';
 
 class InputName extends StatefulWidget {
   const InputName({Key? key}) : super(key: key);

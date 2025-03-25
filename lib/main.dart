@@ -1,9 +1,7 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:helper_coder/screns/home_page.dart';
-import 'package:helper_coder/screns/my_home_page.dart';
 import 'package:helper_coder/screns/tela_informacoes.dart';
-import 'package:provider/provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -16,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => MyAppState(), // Instância de MyAppState
+      create: (context) => MyAppState(),
       child: MaterialApp(
         title: 'iCode',
         theme: ThemeData(
@@ -24,27 +22,24 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.deepOrange,
           ),
+          scaffoldBackgroundColor: Colors.transparent,
         ),
-        home: MyHomePage(), 
+        home: const Telainformacoe(), // Mudei para Telainformacoe
         routes: {
-        '/tela_informacoes': (context) => const Telainformacoe(),
-        '/homePage': (context) => const HomePage(),
-
-      },// Tela inicial
+          '/tela_informacoes': (context) => const Telainformacoe(),
+          '/homePage': (context) => const HomePage(),
+        },
         debugShowCheckedModeBanner: false,
       ),
     );
   }
 }
 
-// Modelo para gerenciar o estado da aplicação
 class MyAppState extends ChangeNotifier {
-  // Variável para armazenar a palavra atual
   var current = WordPair.random();
 
-  //Método para atualizar a palavra
   void getNext() {
     current = WordPair.random();
-    notifyListeners(); // Notifica os widgets que dependem deste estado
+    notifyListeners();
   }
 }

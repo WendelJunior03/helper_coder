@@ -21,7 +21,7 @@ class _BtnrirectState extends State<Btnrirect> {
           child: Column(
             children: [
               Text('Bem-vindo ao Intelligent Coders!', style: TextStyle(
-                color: const Color(0xFF000000),
+                color: const Color.fromARGB(255, 255, 255, 255),
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
               ),),

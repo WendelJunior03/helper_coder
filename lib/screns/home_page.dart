@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:helper_coder/server/gemini_service.dart';
 import 'package:markdown_widget/markdown_widget.dart';
-import 'package:flutter/services.dart';
-
+import 'package:clipboard/clipboard.dart'; // Importe a biblioteca clipboard
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,17 +12,35 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-// quando o usuário envia uma mensagem, a mensagem é enviada ao modelo de IA e a resposta é exibida na tela
-class _HomePageState extends State<HomePage> {
-  // o TextEditingController é usado para obter o texto digitado pelo usuário
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
-  // o GeminiService é usado para enviar mensagens ao modelo de IA
   final GeminiService _geminiService = GeminiService();
-  // a resposta do modelo de IA é armazenada no estado do widget
   String _response = '';
-
-// o estado do widget também controla se a resposta está sendo carregada
   bool _isLoading = false;
+
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+      reverseDuration: const Duration(milliseconds: 4000),
+    )..addStatusListener((AnimationStatus status) {
+        if (status == AnimationStatus.completed) _animationController.reverse();
+        if (status == AnimationStatus.dismissed) _animationController.forward();
+      });
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
 
   void _sendMessage() async {
     String userInput = _controller.text;
@@ -42,16 +60,31 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Método para copiar o texto para a área de transferência
+  void _copyToClipboard() {
+    if (_response.isNotEmpty) {
+      FlutterClipboard.copy(_response).then((value) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Código copiado para a área de transferência!')),
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: Column(
           children: [
             Text(
               'iCode',
               style: TextStyle(
-                color: const Color.fromARGB(255, 255, 255, 255),
+                color: Colors.white,
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
@@ -60,41 +93,41 @@ class _HomePageState extends State<HomePage> {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
+            bottom: Radius.circular(15),
           ),
         ),
-        actions: [
-          // IconButton(
-          //   icon: Icon(Icons.refresh),
-          //   onPressed: () => {},
-          //   style: ButtonStyle(
-          //     foregroundColor: MaterialStateProperty.all(
-          //       const Color.fromARGB(255, 255, 255, 255),
-          //     ),
-          //   ),
-          // ),
-        ],
-        flexibleSpace: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(15),
-            ),
-            gradient: LinearGradient(
-              colors: [const Color.fromARGB(255, 0, 81, 255), const Color.fromARGB(255, 4, 0, 104)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color.fromARGB(255, 53, 53, 53).withOpacity(1),
-                blurRadius: 3,
-                spreadRadius: 1,
-                offset: Offset(0, 1),
+        flexibleSpace: AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) {
+            return Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(15),
+                ),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.blue.withOpacity(0.3 + _animationController.value * 0.2),
+                    Colors.purple.withOpacity(0.3 + _animationController.value * 0.2),
+                    Colors.blueAccent.withOpacity(0.3 + _animationController.value * 0.2),
+                  ],
+                  stops: const [0.0, 0.5, 1.0],
+                  transform: GradientRotation(_animationController.value * 2 * 3.14159),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color.fromARGB(134, 0, 0, 0).withOpacity(1),
+                    blurRadius: 3,
+                    spreadRadius: 1,
+                    offset: Offset(0, 1),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
       body: Column(
@@ -107,39 +140,59 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // No widget de exibição de resposta:
   Widget _buildResponseSection() {
     return Expanded(
       flex: 6,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: SizedBox(
+        child: Container(
+          color: Colors.white,
           height: 300,
           child: _isLoading
               ? Center(child: CircularProgressIndicator())
-              : MarkdownWidget(
-                  data: _response.isNotEmpty
-                      ? _response
-                      : 'Olá, o que posso te ajudar hoje ?',
-                  config: MarkdownConfig(
-                    configs: [
-                      PreConfig(
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 0, 0, 0),
-                          borderRadius: BorderRadius.circular(20),
+              : Stack(
+                  children: [
+                    MarkdownWidget(
+                      data: _response.isNotEmpty
+                          ? _response
+                          : 'Olá, o que posso te ajudar hoje ?',
+                      config: MarkdownConfig(
+                        configs: [
+                          PreConfig(
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 28, 28, 28),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            theme: atomOneDarkTheme,
+                            styleNotMatched: TextStyle(
+                              fontFamily: GoogleFonts.roboto(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                              ).fontFamily,
+                              fontWeight: FontWeight.w600,
+                              color: const Color.fromARGB(255, 255, 255, 255),
+                            ),
+                          )
+                        ],
+                      ),
+                      selectable: true,
+                    ),
+                    // Botão de copiar no canto superior direito
+                    if (_response.isNotEmpty) // Só exibe o botão se houver resposta
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.copy,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          onPressed: _copyToClipboard,
+                          tooltip: 'Copiar código',
                         ),
-                        theme: atomOneDarkTheme,
-                        styleNotMatched: TextStyle(
-                          fontSize: 16,
-                          fontStyle: FontStyle.normal,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w600,
-                          color: const Color.fromARGB(255, 120, 140, 232),
-                        ),
-                      )
-                    ],
-                  ),
-                  selectable: true,
+                      ),
+                  ],
                 ),
         ),
       ),
@@ -168,10 +221,10 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   labelText: 'Digite aqui sua pergunta!',
-                  labelStyle: TextStyle(color: Colors.grey[700]),
+                  labelStyle: TextStyle(color: const Color.fromARGB(255, 67, 67, 67)),
                   suffixIcon: IconButton(
                     onPressed: _sendMessage,
-                    icon: Icon(Icons.send, color: const Color.fromARGB(255, 0, 0, 0)),
+                    icon: Icon(Icons.send, color: const Color.fromARGB(255, 31, 31, 31)),
                   ),
                 ),
                 style: TextStyle(
