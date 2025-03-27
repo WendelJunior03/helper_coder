@@ -29,7 +29,7 @@ class _BtnrirectState extends State<Btnrirect> {
               SlideAction(
                 textColor: const Color.fromARGB(255, 255, 255, 255),
                 innerColor: const Color.fromARGB(255, 255, 255, 255),
-                outerColor: const Color.fromARGB(255, 0, 0, 0),
+                outerColor: const Color.fromARGB(255, 28, 28, 28),
                 sliderButtonIcon: const Icon(
                   Icons.arrow_forward,
                   color: Color.fromARGB(255, 0, 0, 0),

@@ -130,6 +130,51 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           },
         ),
       ),
+      drawer: Drawer(
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        child: ListView(
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                // gradient: LinearGradient(
+                //   colors: [
+                //     Colors.blue,
+                //     Colors.purple,
+                //     Colors.blueAccent,
+                //   ],
+                // ),
+              ),
+              child: Center(
+                child: Text(
+                  'Menu',
+                  style: TextStyle(
+                    color: const Color.fromARGB(255, 0, 0, 0),
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              title: Text('I n i c i o'),
+              onTap: () {
+                Navigator.pushNamed(context, '/tela_informacoes');
+              },
+            ),
+            ListTile(
+              title: Text('H o m e'),
+              onTap: () {
+                Navigator.pushNamed(context, '/homePage');
+              },
+            ),
+            ListTile(
+              title: Text('C h a t s'),
+              onTap: () {
+                Navigator.pushNamed(context, '/tela_informacoes');
+              },
+            ),
+          ],
+        ),
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
