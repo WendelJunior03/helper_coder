@@ -1,7 +1,6 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:helper_coder/screns/components/inputName.dart';
-import 'package:helper_coder/screns/home_page.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 
 class Btnrirect extends StatefulWidget {
