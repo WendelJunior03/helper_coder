@@ -12,7 +12,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final GeminiService _geminiService = GeminiService();
   String _response = '';
@@ -44,6 +45,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   void _sendMessage() async {
     String userInput = _controller.text;
+
     if (userInput.isNotEmpty) {
       setState(() {
         _isLoading = true;
@@ -65,7 +67,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     if (_response.isNotEmpty) {
       FlutterClipboard.copy(_response).then((value) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Código copiado para a área de transferência!')),
+          SnackBar(
+              content: Text('Código copiado!')),
         );
       });
     }
@@ -78,6 +81,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
         elevation: 0,
         title: Column(
           children: [
@@ -110,12 +116,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.blue.withOpacity(0.3 + _animationController.value * 0.2),
-                    Colors.purple.withOpacity(0.3 + _animationController.value * 0.2),
-                    Colors.blueAccent.withOpacity(0.3 + _animationController.value * 0.2),
+                    const Color.fromARGB(255, 0, 0, 0)
+                        .withOpacity(0.3 + _animationController.value * 0.2),
+                    Colors.purple
+                        .withOpacity(0.3 + _animationController.value * 0.2),
+                    const Color.fromARGB(255, 113, 113, 113)
+                        .withOpacity(0.3 + _animationController.value * 0.2),
                   ],
                   stops: const [0.0, 0.5, 1.0],
-                  transform: GradientRotation(_animationController.value * 2 * 3.14159),
+                  transform: GradientRotation(
+                      _animationController.value * 2 * 3.14159),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -130,46 +140,58 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           },
         ),
       ),
+      // componente que cria o menu lateral com as opções de navegação.
       drawer: Drawer(
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        backgroundColor: const Color.fromARGB(184, 0, 0, 0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+        ),
         child: ListView(
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(
-                // gradient: LinearGradient(
-                //   colors: [
-                //     Colors.blue,
-                //     Colors.purple,
-                //     Colors.blueAccent,
-                //   ],
-                // ),
-              ),
+              // decoration: BoxDecoration(), // box para o cabeçalho
               child: Center(
                 child: Text(
-                  'Menu',
+                  'M e n u',
                   style: TextStyle(
-                    color: const Color.fromARGB(255, 0, 0, 0),
+                    color: const Color.fromARGB(255, 255, 255, 255),
                     fontSize: 24,
                   ),
                 ),
               ),
             ),
             ListTile(
-              title: Text('I n i c i o'),
+              title: Text(
+                'I n i c i o',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () {
                 Navigator.pushNamed(context, '/tela_informacoes');
               },
             ),
             ListTile(
-              title: Text('H o m e'),
+              title: Text(
+                'H o m e',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
               onTap: () {
                 Navigator.pushNamed(context, '/homePage');
               },
             ),
             ListTile(
-              title: Text('C h a t s'),
+              title: Text(
+                'C h a t s',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
               onTap: () {
-                Navigator.pushNamed(context, '/tela_informacoes');
+                Navigator.pushNamed(context, '/chats');
               },
             ),
           ],
@@ -223,15 +245,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       selectable: true,
                     ),
                     // Botão de copiar no canto superior direito
-                    if (_response.isNotEmpty) // Só exibe o botão se houver resposta
+                    if (_response
+                        .isNotEmpty) // Só exibe o botão se houver resposta
                       Positioned(
                         top: 8,
                         right: 8,
                         child: IconButton(
-                          icon: Icon(
-                            Icons.copy,
-                            color: Colors.white,
-                            size: 20,
+                          icon: Container(
+                            width: 40,
+                            height: 40,
+                            color: const Color.fromARGB(255, 0, 0, 0).
+                            withOpacity(0.1),
+                            child: Icon(
+                              Icons.copy,
+                              color: const Color.fromARGB(255, 184, 184, 184),
+                              size: 25,
+                            ),
                           ),
                           onPressed: _copyToClipboard,
                           tooltip: 'Copiar código',
@@ -257,19 +286,24 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 controller: _controller,
                 minLines: 1,
                 maxLines: 5,
+                textInputAction: TextInputAction.send,
+                onSubmitted: (value) => _sendMessage(),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
+                    borderSide: BorderSide(
+                        color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   labelText: 'Digite aqui sua pergunta!',
-                  labelStyle: TextStyle(color: const Color.fromARGB(255, 67, 67, 67)),
+                  labelStyle:
+                      TextStyle(color: const Color.fromARGB(255, 67, 67, 67)),
                   suffixIcon: IconButton(
                     onPressed: _sendMessage,
-                    icon: Icon(Icons.send, color: const Color.fromARGB(255, 31, 31, 31)),
+                    icon: Icon(Icons.send,
+                        color: const Color.fromARGB(255, 31, 31, 31)),
                   ),
                 ),
                 style: TextStyle(

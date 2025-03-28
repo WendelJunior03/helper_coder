@@ -59,9 +59,9 @@ class _TelainformacoeState extends State<Telainformacoe>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Colors.blue.withOpacity(0.3 + controller.value * 0.2),
+                        const Color.fromARGB(255, 0, 0, 0).withOpacity(0.3 + controller.value * 0.2),
                         Colors.purple.withOpacity(0.3 + controller.value * 0.2),
-                        Colors.blueAccent.withOpacity(0.3 + controller.value * 0.2),
+                        const Color.fromARGB(255, 113, 113, 113).withOpacity(0.3 + controller.value * 0.2),
                       ],
                       stops: const [0.0, 0.5, 1.0],
                       transform: GradientRotation(controller.value * 2 * 3.14159),
