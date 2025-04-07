@@ -1,54 +1,84 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+import 'package:helper_coder/main.dart'; // Para acessar a classe Chat
 
 class GeminiService {
   final GenerativeModel _model;
   final List<Content> _chatHistory = [];
+  Database? _database;
 
-// a classe GeminiService é responsável por gerenciar a comunicação com o modelo de IA e manter o histórico de conversas
-  GeminiService()
-      : _model = GenerativeModel(
+  GeminiService() : _model = GenerativeModel(
           model: 'gemini-1.5-flash',
-          apiKey: 'AIzaSyAZK-JYMWQS1gyrhpD2n3FYHBIQyu-cxIQ',
+          apiKey: 'AIzaSyBlWrbs1L5wR5ncJ8j3O5fiCMvvXsup-60', // Substitua pela sua chave
           generationConfig: GenerationConfig(maxOutputTokens: 1000),
         ) {
-    // Inicialize a conversa com a primeira interação
+    _initializeDatabase().then((_) {
+      _loadInitialChatHistory();
+    });
+  }
+
+  Future<void> _initializeDatabase() async {
+    try {
+      _database = await openDatabase(
+        join(await getDatabasesPath(), 'chat_database.db'),
+        onCreate: (db, version) {
+          return db.execute(
+            'CREATE TABLE chats(id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT, response TEXT, timestamp TEXT)',
+          );
+        },
+        version: 1,
+      );
+    } catch (e) {
+      print('Erro ao inicializar o banco de dados: $e');
+    }
+  }
+
+  Future<void> _loadInitialChatHistory() async {
     _chatHistory.addAll([
-      Content.text(
-          'Você é uma IA especialista em desenvolvimento de software?'),
+      Content.text('Você é uma IA especialista em desenvolvimento de software?'),
       Content.model([
-        TextPart(
-            'Sou um especialista em desenvolvimento de software e estou aqui para ajudar você!'),
-        TextPart(
-            'Tenho experiência em diversas linguagens de programação, incluindo Dart, Python, JavaScript, e mais.'),
+        TextPart('Sou um especialista em desenvolvimento de software e estou aqui para ajudar você!'),
+        TextPart('Tenho experiência em diversas linguagens de programação, incluindo Dart, Python, JavaScript, e mais.'),
         TextPart('Como posso ajudar você hoje?'),
       ]),
     ]);
   }
 
-// o método sendMessage é responsável por enviar a mensagem do usuário ao modelo de IA e obter uma resposta gerada
-  Future<String?> sendMessage(String userInput) async {
-    // Adiciona a mensagem do usuário ao histórico
-    _chatHistory.add(Content.text(userInput));
+  Future<void> saveChat(String question, String response) async {
+    if (_database == null) {
+      await _initializeDatabase();
+    }
+    await _database!.insert(
+      'chats',
+      Chat(
+        question: question,
+        response: response,
+        timestamp: DateTime.now(),
+      ).toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
 
-    // Envia a mensagem ao modelo e obtém a resposta
+  Future<List<Chat>> getChats() async {
+    if (_database == null) {
+      await _initializeDatabase();
+    }
+    final List<Map<String, dynamic>> maps = await _database!.query('chats');
+    return List.generate(maps.length, (i) => Chat.fromJson(maps[i]));
+  }
+
+  Future<String?> sendMessage(String userInput) async {
+    _chatHistory.add(Content.text(userInput));
     final chat = _model.startChat(history: _chatHistory);
-    // Enviando a mensagem do usuário ao modelo
     final response = await chat.sendMessage(Content.text(userInput));
 
-    // Tratando a resposta para extrair o texto gerado
-    // ignore: unnecessary_null_comparison
-    if (response != null && response is Content) {
-      _chatHistory.add(Content.text(response.text!));
-      return response.text; // Retorna o texto gerado
-      // ignore: unnecessary_null_comparison
-    } else if (response != null && response.text != null) {
-      // Caso o objeto retornado não seja diretamente um `Content`, tratamos o texto
-      final generatedContent = Content.text(response.text!);
+    if (response.text != null) {
+      final generatedContent = Content.model([TextPart(response.text!)]);
       _chatHistory.add(generatedContent);
-      return response.text!;
+      await saveChat(userInput, response.text!);
+      return response.text;
     }
-
-    // Caso não haja resposta válida
     return 'Erro: Resposta inesperada do modelo.';
   }
 }
