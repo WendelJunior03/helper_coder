@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:helper_coder/server/gemini_service.dart';
+import 'package:helper_coder/main.dart'; // Importe o MyAppState
 import 'package:markdown_widget/markdown_widget.dart';
-import 'package:clipboard/clipboard.dart'; // Importe a biblioteca clipboard
+import 'package:clipboard/clipboard.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,10 +13,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
-  final GeminiService _geminiService = GeminiService();
   String _response = '';
   bool _isLoading = false;
 
@@ -51,10 +50,21 @@ class _HomePageState extends State<HomePage>
         _isLoading = true;
       });
 
-      String? response = await _geminiService.sendMessage(userInput);
+      // Envia a mensagem via MyAppState, que salva automaticamente no SQLite
+      await context.read<MyAppState>().addChat(userInput);
+
+      // Pega o último chat salvo para exibir a resposta
+      final lastChat = context.read<MyAppState>().chats.lastWhere(
+            (chat) => chat.question == userInput,
+            orElse: () => Chat(
+              question: userInput,
+              response: 'Erro ao obter resposta.',
+              timestamp: DateTime.now(),
+            ),
+          );
 
       setState(() {
-        _response = response ?? 'Erro ao obter resposta.';
+        _response = lastChat.response;
         _isLoading = false;
       });
 
@@ -62,13 +72,11 @@ class _HomePageState extends State<HomePage>
     }
   }
 
-  // Método para copiar o texto para a área de transferência
   void _copyToClipboard() {
     if (_response.isNotEmpty) {
       FlutterClipboard.copy(_response).then((value) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Código copiado!')),
+          const SnackBar(content: Text('Código copiado!')),
         );
       });
     }
@@ -81,14 +89,12 @@ class _HomePageState extends State<HomePage>
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
-        title: Column(
+        title: const Column(
           children: [
             Text(
-              'iCode',
+              'iCoders',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 30,
@@ -97,10 +103,8 @@ class _HomePageState extends State<HomePage>
             ),
           ],
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(15),
-          ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
         ),
         flexibleSpace: AnimatedBuilder(
           animation: _animationController,
@@ -109,9 +113,8 @@ class _HomePageState extends State<HomePage>
               width: double.infinity,
               decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(15),
-                ),
+                borderRadius:
+                    const BorderRadius.vertical(bottom: Radius.circular(15)),
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -124,15 +127,15 @@ class _HomePageState extends State<HomePage>
                         .withOpacity(0.3 + _animationController.value * 0.2),
                   ],
                   stops: const [0.0, 0.5, 1.0],
-                  transform: GradientRotation(
-                      _animationController.value * 2 * 3.14159),
+                  transform:
+                      GradientRotation(_animationController.value * 2 * 3.14159),
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: const Color.fromARGB(134, 0, 0, 0).withOpacity(1),
                     blurRadius: 3,
                     spreadRadius: 1,
-                    offset: Offset(0, 1),
+                    offset: const Offset(0, 1),
                   ),
                 ],
               ),
@@ -140,10 +143,9 @@ class _HomePageState extends State<HomePage>
           },
         ),
       ),
-      // componente que cria o menu lateral com as opções de navegação.
       drawer: Drawer(
-        backgroundColor: const Color.fromARGB(184, 0, 0, 0),
-        shape: RoundedRectangleBorder(
+        backgroundColor: const Color.fromARGB(255, 42, 42, 42),
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topRight: Radius.circular(20),
             bottomRight: Radius.circular(20),
@@ -151,45 +153,31 @@ class _HomePageState extends State<HomePage>
         ),
         child: ListView(
           children: [
-            DrawerHeader(
-              // decoration: BoxDecoration(), // box para o cabeçalho
+            const DrawerHeader(
               child: Center(
                 child: Text(
                   'M e n u',
                   style: TextStyle(
-                    color: const Color.fromARGB(255, 255, 255, 255),
+                    color: Color.fromARGB(255, 255, 255, 255),
                     fontSize: 24,
                   ),
                 ),
               ),
             ),
             ListTile(
-              title: Text(
-                'I n i c i o',
-                style: TextStyle(color: Colors.white),
-              ),
+              title: const Text('I n i c i o', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pushNamed(context, '/tela_informacoes');
               },
             ),
             ListTile(
-              title: Text(
-                'H o m e',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
+              title: const Text('H o m e', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pushNamed(context, '/homePage');
               },
             ),
             ListTile(
-              title: Text(
-                'C h a t s',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
+              title: const Text('C h a t s', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pushNamed(context, '/chats');
               },
@@ -216,13 +204,13 @@ class _HomePageState extends State<HomePage>
           color: Colors.white,
           height: 300,
           child: _isLoading
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : Stack(
                   children: [
                     MarkdownWidget(
                       data: _response.isNotEmpty
                           ? _response
-                          : 'Olá, o que posso te ajudar hoje ?',
+                          : 'Olá, o que posso te ajudar hoje?',
                       config: MarkdownConfig(
                         configs: [
                           PreConfig(
@@ -244,9 +232,7 @@ class _HomePageState extends State<HomePage>
                       ),
                       selectable: true,
                     ),
-                    // Botão de copiar no canto superior direito
-                    if (_response
-                        .isNotEmpty) // Só exibe o botão se houver resposta
+                    if (_response.isNotEmpty)
                       Positioned(
                         top: 8,
                         right: 8,
@@ -254,11 +240,11 @@ class _HomePageState extends State<HomePage>
                           icon: Container(
                             width: 40,
                             height: 40,
-                            color: const Color.fromARGB(255, 0, 0, 0).
-                            withOpacity(0.1),
-                            child: Icon(
+                            color:
+                                const Color.fromARGB(255, 0, 0, 0).withOpacity(0.1),
+                            child: const Icon(
                               Icons.copy,
-                              color: const Color.fromARGB(255, 184, 184, 184),
+                              color: Color.fromARGB(255, 184, 184, 184),
                               size: 25,
                             ),
                           ),
@@ -293,17 +279,17 @@ class _HomePageState extends State<HomePage>
                     borderRadius: BorderRadius.circular(15),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 0, 0, 0), width: 2.0),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   labelText: 'Digite aqui sua pergunta!',
                   labelStyle:
-                      TextStyle(color: const Color.fromARGB(255, 67, 67, 67)),
+                      const TextStyle(color: Color.fromARGB(255, 67, 67, 67)),
                   suffixIcon: IconButton(
                     onPressed: _sendMessage,
-                    icon: Icon(Icons.send,
-                        color: const Color.fromARGB(255, 31, 31, 31)),
+                    icon: const Icon(Icons.send,
+                        color: Color.fromARGB(255, 31, 31, 31)),
                   ),
                 ),
                 style: TextStyle(

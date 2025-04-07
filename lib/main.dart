@@ -3,24 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:helper_coder/screns/home_page.dart';
 import 'package:helper_coder/screns/tela_informacoes.dart';
 import 'package:helper_coder/screns/chats.dart';
+import 'package:helper_coder/server/gemini_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 class Chat {
+  final int? id;
   final String question;
   final String response;
   final DateTime timestamp;
 
-  Chat({required this.question, required this.response, required this.timestamp});
+  Chat({
+    this.id,
+    required this.question,
+    required this.response,
+    required this.timestamp,
+  });
 
   Map<String, dynamic> toJson() => {
+        'id': id,
         'question': question,
         'response': response,
         'timestamp': timestamp.toIso8601String(),
       };
 
   factory Chat.fromJson(Map<String, dynamic> json) => Chat(
+        id: json['id'],
         question: json['question'],
         response: json['response'],
         timestamp: DateTime.parse(json['timestamp']),
@@ -28,7 +35,7 @@ class Chat {
 }
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // Garante que o binding esteja inicializado
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -61,6 +68,7 @@ class MyApp extends StatelessWidget {
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
   List<Chat> chats = [];
+  final GeminiService _geminiService = GeminiService();
   bool _isInitialized = false;
 
   MyAppState() {
@@ -68,7 +76,6 @@ class MyAppState extends ChangeNotifier {
   }
 
   Future<void> _initialize() async {
-    // Aguarda um pequeno delay para garantir que o plugin esteja pronto
     await Future.delayed(const Duration(milliseconds: 100));
     await loadChats();
     _isInitialized = true;
@@ -80,39 +87,21 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addChat(String question, String response) {
+  Future<void> addChat(String question) async {
     if (!_isInitialized) return;
-    chats.add(Chat(
-      question: question,
-      response: response,
-      timestamp: DateTime.now(),
-    ));
-    _saveChats();
-    notifyListeners();
+    final response = await _geminiService.sendMessage(question);
+    if (response != null) {
+      await loadChats();
+    }
   }
 
   Future<void> loadChats() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final String? chatsJson = prefs.getString('chats');
-      if (chatsJson != null) {
-        final List<dynamic> decoded = jsonDecode(chatsJson);
-        chats = decoded.map((chat) => Chat.fromJson(chat)).toList();
-      }
+      chats = (await _geminiService.getChats()).cast<Chat>();
     } catch (e) {
       print('Erro ao carregar chats: $e');
-      chats = []; // Define uma lista vazia em caso de erro
+      chats = [];
     }
     notifyListeners();
-  }
-
-  Future<void> _saveChats() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final String encoded = jsonEncode(chats.map((chat) => chat.toJson()).toList());
-      await prefs.setString('chats', encoded);
-    } catch (e) {
-      print('Erro ao salvar chats: $e');
-    }
   }
 }
