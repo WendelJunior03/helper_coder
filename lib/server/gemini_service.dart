@@ -10,7 +10,7 @@ class GeminiService {
 
   GeminiService() : _model = GenerativeModel(
           model: 'gemini-1.5-flash',
-          apiKey: 'AIzaSyBlWrbs1L5wR5ncJ8j3O5fiCMvvXsup-60', // Substitua pela sua chave
+          apiKey: 'Coloque Sua Chave API aqui', // Substitua pela sua chave
           generationConfig: GenerationConfig(maxOutputTokens: 1000),
         ) {
     _initializeDatabase().then((_) {
